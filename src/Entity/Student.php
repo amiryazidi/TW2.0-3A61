@@ -26,6 +26,10 @@ class Student
     #[ORM\JoinColumn(name:'nc_id',referencedColumnName:'ref')]
     private ?Classroom $classroom = null;
 
+    #[ORM\ManyToOne(inversedBy: 'students')]
+    #[ORM\JoinColumn(name:'ref',referencedColumnName:'ref')]
+    private ?Club $club = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -75,6 +79,18 @@ class Student
     public function setClassroom(?Classroom $classroom): static
     {
         $this->classroom = $classroom;
+
+        return $this;
+    }
+
+    public function getClub(): ?Club
+    {
+        return $this->club;
+    }
+
+    public function setClub(?Club $club): static
+    {
+        $this->club = $club;
 
         return $this;
     }
