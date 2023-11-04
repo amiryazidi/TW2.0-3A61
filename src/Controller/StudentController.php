@@ -6,6 +6,7 @@ use App\Entity\Student;
 use App\Form\StudentType;
 use App\Repository\ClassroomRepository;
 use App\Repository\StudentRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -102,4 +103,51 @@ class StudentController extends AbstractController
         $em->flush();
         return $this->redirectToRoute('fetch');
     }
+    #[Route('/dql', name: 'dql')]
+    public function sqlStudent (EntityManagerInterface $em,Request $request, StudentRepository $repo):Response{
+        $result=$repo->findAll();
+        $req=$em->createQuery(" select s from App\Entity\Student s where s.name=:n");// select * from Student
+        if($request->isMethod('post')){
+            $value=$request->get('test');
+            $req->setParameter('n',$value);
+            $result=$req->getResult();
+            //dd($result);
+        }
+        return $this->render('student/searchStudent.html.twig',[
+            "students"=>$result
+        ]);
+    }
+    #[Route('/dqltwo', name: 'dqlTwo')]
+    public function dqlStudentrepo (EntityManagerInterface $em,Request $request, StudentRepository $repo):Response{
+        $result=$repo->findAll();
+        if($request->isMethod('post')){
+            $value=$request->get('test');
+            $result=$repo->fetchStudentByName($value);
+        
+        }
+        return $this->render('student/searchStudent.html.twig',[
+            "students"=>$result
+        ]);
+    }
+    #[Route('/dql3', name: 'dql3')]
+    public function dqlCalcul (EntityManagerInterface $em,Request $request, StudentRepository $repo):Response
+    {
+        $req=$em->createQuery(" select s.name from App\Entity\Student s Order By s.name DESC");// select * from Student
+        $result=$req->getResult();
+        dd($result);
+    }
+    #[Route('/dqlJoin', name: 'dqlJoin')]
+    public function dqlJoin (EntityManagerInterface $em,Request $request, StudentRepository $repo):Response
+    {
+        $req=$em->createQuery(" select s.name t,c.name from App\Entity\Student s join s.classroom c");// select * from Student
+        $result=$req->getResult();
+        dd($result);
+
+    }
+    #[Route('/qb', name: 'qb')]
+    public function qb(StudentRepository $repo):Response{
+            $result=$repo->listEtudiantQB();
+            dd($result);
+    }
+
 }
